@@ -160,6 +160,7 @@ document.addEventListener("DOMContentLoaded" ,() =>
     // e => eventObject
     function changeDirection(e)
     {
+        e.preventDefault();
         const Left_key = 37;
         const Right_key = 39;
         const Top_key = 38;
