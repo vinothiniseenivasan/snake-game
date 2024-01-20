@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded" ,() =>
     let snake = [{x:160 , y:200} , {x:140 , y:200} ,{x:120 , y:200} ];
     let dx=cellSize;//displacement on x axis
     let dy=0;//displacement on y axis
+    // To increase speed everytime if snake eats food
+    let intervalId;
+    let gameSpeed = 400;
 
     function drawScoreBoard()
     {
@@ -36,9 +39,6 @@ document.addEventListener("DOMContentLoaded" ,() =>
     //    create food apple
      const foodElemnt =drawDiv(food.x , food.y , 'food');
     
-    
-      
-
 
     //  for snake has 3 colums,array so goto each
     // cell draw snake
@@ -72,12 +72,22 @@ document.addEventListener("DOMContentLoaded" ,() =>
 
         if(newHead.x === food.x & newHead.y === food.y)
         {
-            // collision happens
+            // collision happens snake is eating food
             // grow its size
             score += 5;
 
+
             // now changing area of food and its not be in snake cells
             moveFood();
+            //  incerase game speedgit
+            if(gameSpeed > 30)
+            {
+                clearInterval(intervalId);
+                gameSpeed -= 10;
+             
+               gameLoop();
+
+            }
 
 
         }
@@ -107,8 +117,8 @@ document.addEventListener("DOMContentLoaded" ,() =>
     //  2.check wall position
     const isHittingLeftWall = snake[0].x < 0;
     const isHittingTopWall = snake[0].y < 0;
-    const isHittingRightWall = snake[0].x >= (arenasize-dx);
-    const isHittingBottomWall = snake[0].y >= arenasize-20;
+    const isHittingRightWall = snake[0].x >= (arenasize);
+    const isHittingBottomWall = snake[0].y >= arenasize;
 
       return isHittingLeftWall || isHittingRightWall ||isHittingTopWall || isHittingBottomWall;
 
@@ -120,39 +130,93 @@ document.addEventListener("DOMContentLoaded" ,() =>
     // when we are not given any direction to snake it should ru before what we gave direction
     function gameLoop()
     {
+        console.log("gameSpeed" ,gameSpeed); 
         //  after 1sec scoreboard will change , snake  and food item
-        setInterval( () =>{
+      intervalId =  setInterval( () =>{
             if(gameStarted == false)
             {
                 return;
             }
+            console.log("gameSpeed" ,gameSpeed);
             //  check for game over if snake hits wall restart game
            if(isGameOver())
            {
             alert (`Game Over , score = ${score}`);
+
             document.location.reload();
             gameStarted=false;
             return;
            }
-            // before drawing snake
-            updateSnake();
+            // before drawing snake 
+           updateSnake();
            drawScoreBoard(); 
            drawFoodItemAndSnake();
           
-        } ,400  );
+        } ,gameSpeed);
 
       
         
+    }
+    // e => eventObject
+    function changeDirection(e)
+    {
+        const Left_key = 37;
+        const Right_key = 39;
+        const Top_key = 38;
+        const Bottom_key = 40;
+
+        const keyPressed = e.keyCode;
+        //  if u going up we can't move down immediately only move 
+        // left and right pnly
+        const isGoingUp = (dy == -cellSize);
+        const isGoingDown = (dy == cellSize);
+        const isGoingLeft = (dx == -cellSize);
+        const isGoingRight = (dx == cellSize);
+
+        if(keyPressed == Left_key && !isGoingRight)
+        {
+            dy =0;
+            dx -= cellSize;
+            
+        }
+        if(keyPressed == Right_key  && !isGoingLeft)
+        {
+            dy =0;
+            dx += cellSize;
+        }
+        if(keyPressed == Top_key && !isGoingDown)
+        {
+            dy -= cellSize;
+            dx =0;
+        }
+        if(keyPressed == Bottom_key && !isGoingUp)
+        {
+            dy += cellSize;
+            dx =0; 
+        }
+
+
     }
 
 
     // game starts
     function runGame()
     {
-        gameStarted = true;
-        // when we are not given any direction to snake it should ru before what we gave direction
+        if(!gameStarted)
+        {
+            gameStarted = true;
+            // when we are not given any direction to snake it should ru before what we gave direction
+    
+            gameLoop();
+            // arrow key of up,down,left,right
+            // keyPress => AnyCode is pressed its call changrdir
+            document.addEventListener('keydown',changeDirection);
 
-        gameLoop();
+
+        }
+
+
+      
     }
 
 
@@ -188,94 +252,32 @@ document.addEventListener("DOMContentLoaded" ,() =>
     }
 
 
-    // find min
-    function findMin(snake)
-    {
-       let min =0;
-        snake.forEach(function (eachcell)
-        {
-            const minValue = Math.min.apply(null, eachcell.x);
-            return minValue;
-
-        });
-    }
-     // find min
-     function findMin(snake)
-     {
-       let minValue =2000;
-         snake.forEach(function (eachcell)
-         {
-            console.log("hi");
-            console.log("eachcell.x" ,eachcell.x);
-
-             minValue = Math.min(minValue,eachcell.x);
-            console.log("minValue" ,minValue);
-        
-        })
-         return minValue;
-     }
+   
+    
      function  moveFood()
      {
         let newX ,newY;
         do{
-            
+          newX = Math.floor(Math.random() * ((arenasize-cellSize)/cellSize))  * cellSize;
+          newY = Math.floor(Math.random() * ((arenasize-cellSize)/cellSize) ) * cellSize;
+
         }
         //  checking food is not inside snakecell
         //  2. if its here send true
         //  untill false it generating random x and y coordinate for food
-        while(snake.some(eachSnakeCell => eachSnakeCell.x === newX && eachSnakeCell.y ===newY))
+        while(snake.some(eachSnakeCell => eachSnakeCell.x === newX && eachSnakeCell.y ===newY) );
 
         food = {x: newX , y: newY};
 
      }
 
 
-     // find max
-     function findMax(snake)
-     {
-        let maxValue =0;
-         snake.forEach(function (eachcell)
-         {
-
-            maxValue = Math.max(eachcell.x,maxValue);
-         })
-         return maxValue;
-     }
-    // 1st function
+     
     // To prepare scoreboard and startbutton
 
     startGame(); 
 
-    // function snakeMovingforwardXaxis(snake)
-    // {
-    //     //  vino code 
-    // //   ------------------
-    //     // moving x - dir
-    //     // find least and most one remove the least one 
-    //     // and add+20 to most one
-    //     let minOnXaxis = findMin(snake);
-    //     let max = findMax(snake) + 20;
-    //     // Apply on snake
-
-    //     // // Add 20 to maxelement
-    //     // const updateMaxInArray = snake.map(eachSnakeCell=> (eachSnakeCell === maxOnXaxis) ? (eachSnakeCell+20) : eachSnakeCell);
-
-    //     // delete min elemnt
-    //     const DeleteMinInArray = snake.filter(eachSnakeCell=>  eachSnakeCell != minOnXaxis);
-    //     DeleteMinInArray.push(max);
-    // DeleteMinInArray.forEach( function(eachcell){
-    //     console.log(" del eachcell" ,eachcell);
-    //      snake.forEach(function(eachcellinSnake)
-    //      {
-    //         eachcellinSnake.x = eachcell;
-
-    //      });
-
-    // });
-    //     return snake;
-
-
-    // }
+   
 });
 
 
