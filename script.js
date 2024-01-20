@@ -12,7 +12,16 @@ document.addEventListener("DOMContentLoaded" ,() =>
     // To increase speed everytime if snake eats food
     let intervalId;
     let gameSpeed = 400;
+    // for Sounding Effect
+    // let mySound = new Audio('music\snake-hiss-95241.mp3');
+       
+    let myAudio = document.querySelector('#audio');
 
+
+    myAudio.addEventListener('canplaythrough', function() {
+        // The audio is fully loaded and ready to play
+        console.log("Eat sound is ready");
+    });
     function drawScoreBoard()
     {
         const scoreBoard = document.getElementById('score-board');
@@ -73,7 +82,11 @@ document.addEventListener("DOMContentLoaded" ,() =>
         if(newHead.x === food.x & newHead.y === food.y)
         {
             // collision happens snake is eating food
+            // sound effect
+            myAudio.currentTime = 0;
+            myAudio.play()
             // grow its size
+
             score += 5;
 
 
